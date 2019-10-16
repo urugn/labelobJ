@@ -15,4 +15,5 @@ The jar directory includes a ready to run jar executable with dependencies under
 
 > java -jar urugn-lebalob-1.0.jar
 
-You can support this project via [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MRWYLGXVSJU38) 
+If you are a developer in java, feel free do join this project.
+You can also help support this project via [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=659VUBXNTUSEE) 
