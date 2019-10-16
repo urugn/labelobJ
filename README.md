@@ -13,6 +13,6 @@ You can download the project directly as a zip file or clone via git
 ## Running ##
 The jar directory includes a ready to run jar executable with dependencies under the lib folder.
 
-> java -jar urugn-lebalob-1.0.ja
+> java -jar urugn-lebalob-1.0.jar
 
-Donate from as little as One dollar via [![paypal](https://www.paypal.com/en_KE/i/scr/pixel.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MRWYLGXVSJU38) 
+You can support this project via [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MRWYLGXVSJU38) 
