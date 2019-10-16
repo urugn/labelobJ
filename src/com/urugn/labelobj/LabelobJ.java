@@ -229,18 +229,9 @@ public final class LabelobJ extends Application implements LabelobScene {
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
 
-        //initial image
-//        ObjFrame img = new ObjFrame("file:///developer/projects/ai/urugn-labelobj-1.0/frame.png");
-//        iView.setImage(img);
         BorderPane mPane = new BorderPane();
         Scene mScene = new Scene(mPane);
-//        primaryStage.addEventHandler((WindowEvent event) ->{
-//            
-//        System.out.println(event);
-//        
-//        }, (WindowEvent handler) ->{
-//        System.out.println(handler);
-//        });
+        
 
         Button fBtn = new Button("Directory");
         topPane.getChildren().add(fBtn);
@@ -366,28 +357,7 @@ public final class LabelobJ extends Application implements LabelobScene {
             double mX = event.getX();
             double mY = event.getY();
             highlight(isHighlighted(mX, mY));
-//            if (isHighlighted(mX, mY)) {
-//                objCanvas.setCursor(Cursor.HAND);
-//                if (curObjLabel != null) {
-//                    curObjLabel.setStroke(Color.KHAKI);
-//                    oldStroke = curObjLabel.initStroke();
-//                }
-//
-//                //make sure do de hightlight the previous label if over bound
-//                if (preObjLabel != null) {
-//                    preObjLabel.setStroke(preObjLabel.initStroke());
-//                }
-//            } else {
-//                objCanvas.setCursor(Cursor.DEFAULT);
-//                if (curObjLabel != null) {
-//                    curObjLabel.setStroke(oldStroke);
-//                }
-//
-//                //make sure to de hightlight the previous label
-//                if (preObjLabel != null) {
-//                    preObjLabel.setStroke(preObjLabel.initStroke());
-//                }
-//            }
+            
 
             repaintCanvas();
         });
@@ -486,14 +456,7 @@ public final class LabelobJ extends Application implements LabelobScene {
             }
         });
         mPane.setCenter(centerPane);
-//        iView.fitWidthProperty().bind(sPane.widthProperty() );
-//        iView.fitHeightProperty().bind(sPane.heightProperty() );
-
-//        iView.setOnMouseDragOver((MouseEvent event) -> {
-//
-//            Rectangle rec = new Rectangle(xstart, ystart, event.getX(), event.getY());
-//            sPane.getChildren().add(rec);
-//        });
+        
         mScene.setOnKeyReleased((KeyEvent event) -> {
             objCanvas.requestFocus();
             status("Key detected:" + event.getCharacter());
