@@ -1,6 +1,6 @@
 # labelobJ
 LabelobJ a simple object annotation tool written in java using javafx canvas to draw bounding boxes.
-LabelobJ currently support creation of the ** VOC 2007 ** dataset.
+LabelobJ currently support creation of the *VOC 2007* dataset.
 
 ## Requirements ##
 ***Make sure you download [Java 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher from Oracle.***
