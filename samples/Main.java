@@ -6,35 +6,45 @@
 package com.urugn.labelobj;
 
 import com.urugn.media.snap.SnapFilter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -49,7 +59,7 @@ import org.w3c.dom.Document;
  *
  * @author UruGN
  */
-public class Main extends Application {
+public class Main extends Application implements LabelobScene {
 
     double xstart = 0d, ystart = 0d, xwidth = 0d, yheight = 0d;
     boolean drawRec;
@@ -73,7 +83,7 @@ public class Main extends Application {
     File dir = null;
 
     /**
-     * tack current image being prcessed
+     * tack current image being processed
      */
     int fileIndex = 0;
 
@@ -93,6 +103,8 @@ public class Main extends Application {
         launch(args);
     }
     private Stage primaryStage;
+    private Paint oldStroke;
+    private ObjLabel curObjLabel;
 
     String getImage(int index) {
         if (photos != null && photos.length > 0) {
@@ -163,6 +175,8 @@ public class Main extends Application {
 
         centerPane.getChildren().add(iView);
 
+        //TODO we could use the canvas in the future
+        //centerPane.getChildren().add(objAnnotator);
         iView.setPreserveRatio(true);
         iView.setSmooth(true);
         iView.setFocusTraversable(true);
@@ -170,6 +184,21 @@ public class Main extends Application {
         iView.setOnMouseMoved((MouseEvent event) -> {
             //update cordinates
             sLabel.setText(" x:" + event.getX() + " y:" + event.getY());
+
+//            ObjLabel rec = getObjLabel(event.getX(), event.getY());
+//            if (rec != null) {
+//                status("rec W:" + rec.getWidth());
+//                oldStroke = rec.getStroke();
+//                rec.setStroke(Color.KHAKI);
+//                curObjLabel = rec;
+//            }
+//
+//            if (rec == null) {
+////                status("rec Null:");
+//                if (curObjLabel != null && oldStroke != null) {
+//                    curObjLabel.setStroke(oldStroke);
+//                }
+//            }
         });
 
         iView.setOnMouseExited((MouseEvent event) -> {
@@ -183,8 +212,8 @@ public class Main extends Application {
             //visualize a rectangle being drawned
             //we get the last rectangle in the container and resize it
             if (drawRec && centerPane.getChildren().size() > 1) {
-                //make sure to reseve the image at index 0
-                Rectangle rec = (Rectangle) centerPane.getChildren().get(centerPane.getChildren().size() - 1);
+                //make sure to reserve the image at index 0
+                ObjLabel rec = (ObjLabel) centerPane.getChildren().get(centerPane.getChildren().size() - 1);
                 rec.setFill(new Color(Math.random(), Math.random(), Math.random(), 0.3));
                 rec.setStroke(Color.RED);
                 rec.setWidth(xwidth);
@@ -204,38 +233,36 @@ public class Main extends Application {
             //we create a new rectangle object and add it to the center pane
             if (event.getButton() == event.getButton().PRIMARY) {
 
-                addRectangle(xstart, ystart, xwidth, yheight);
+                curObjLabel = objAnnotator.newObjLabel((int) xstart, (int) ystart, (int) xwidth, (int) yheight);
+                addObjLabel(curObjLabel);
                 drawRec = true;
             }
         });
 
-        iView.setOnMouseReleased((MouseEvent event) -> {
-
-            //use the secondary mouse to remove rectangles
-            if (event.getButton() == event.getButton().SECONDARY) {
-                int size = centerPane.getChildren().size();
-                if (size > 1) {
-                    centerPane.getChildren().remove(centerPane.getChildren().size() - 1);
-                }
-                int recSize = objAnnotator.getObjLabels().size();
-                if (recSize > 0) {
-                    objAnnotator.removeObject(objAnnotator.getObjLabels().get(recSize - 1));
+        iView.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                //use the secondary mouse to remove rectangles
+                if (event.getButton() == event.getButton().SECONDARY) {
+                    undo();
+                    return;
                 }
 
-                //try and write immediately
-                writeAnnotation();
-                return;
+                //prompt annotation name
+                Map opt = getObjectInfo();
+                String name = opt.get("name") != null ? (String) opt.get("name") : "N/A";
+                String pose = opt.get("pose") != null ? (String) opt.get("pose") : "N/A";
+                int truncated = opt.get("truncated") != null ? (Integer) opt.get("truncated") : 0;
+                int difficult = opt.get("difficult") != null ? (Integer) opt.get("difficult") : 0;
+
+                labelObject(name, pose, truncated, difficult);
+
+                //clear size to make room for the next rectangle
+                xwidth = 0;
+                yheight = 0;
+
+                drawRec = false;
             }
-
-            //prompt annotation name
-            labelObject();
-
-            //clear size to make room for the next rectangle
-            xwidth = 0;
-            yheight = 0;
-
-            drawRec = false;
-
         });
         mPane.setCenter(centerPane);
 //        iView.fitWidthProperty().bind(sPane.widthProperty() );
@@ -272,13 +299,117 @@ public class Main extends Application {
 
         mScene.widthProperty().add(iView.fitWidthProperty());
         mScene.heightProperty().add(iView.fitHeightProperty());
-        primaryStage.setTitle("ObjLabel");
+        primaryStage.setTitle("LabelobJ");
 
         primaryStage.setScene(mScene);
         primaryStage.minWidthProperty().bind(mScene.heightProperty().multiply(2));
         primaryStage.minHeightProperty().bind(mScene.widthProperty().divide(2));
 
         primaryStage.show();
+    }
+
+    Map<String, Object> getObjectInfo() {
+        status("getObjectInfo..");
+
+        // Create the custom dialog.
+        Dialog<Map<String, Object>> dialog = new Dialog<>();
+        dialog.setTitle("Object Info");
+        dialog.setHeaderText("Object data parameters.");
+
+// Set the icon (must be included in the project).
+//        dialog.setGraphic(new ImageView(this.getClass().getResource("login.png").toString()));
+// Set the button types.
+        ButtonType writeButtonType = new ButtonType("Write", ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(writeButtonType, ButtonType.CANCEL);
+
+// Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Name");
+        grid.add(new Label("Name:"), 0, 0);
+        grid.add(nameField, 1, 0);
+
+//        TextField poseField = new TextField();
+//        poseField.setPromptText("Pose");
+        ObservableList<String> options
+                = FXCollections.observableArrayList(
+                        ObjLabel.POSE_NONE,
+                        ObjLabel.POSE_LEFT,
+                        ObjLabel.POSE_RIGHT,
+                        ObjLabel.POSE_FRONT,
+                        ObjLabel.POSE_BACK
+                );
+        final ComboBox poseComboBox = new ComboBox(options);
+        poseComboBox.setValue(ObjLabel.POSE_NONE);
+
+        grid.add(new Label("Pose:"), 0, 1);
+        grid.add(poseComboBox, 1, 1);
+
+        TextField truncatedField = new TextField();
+        truncatedField.setPromptText("Truncated");
+        truncatedField.setText("0");
+        grid.add(new Label("Truncated:"), 0, 2);
+        grid.add(truncatedField, 1, 2);
+
+        TextField difficultField = new TextField();
+        difficultField.setPromptText("Difficult");
+        difficultField.setText("0");
+        grid.add(new Label("Difficult:"), 0, 3);
+        grid.add(difficultField, 1, 3);
+// Enable/Disable login button depending on whether a username was entered.
+        Node writeButton = dialog.getDialogPane().lookupButton(writeButtonType);
+        writeButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+        nameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            writeButton.setDisable(newValue.trim().isEmpty());
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+// Request focus on the name field by default.
+        Platform.runLater(() -> nameField.requestFocus());
+
+// Convert the result to key-value-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == writeButtonType) {
+                Map<String, Object> op = new HashMap<>();
+                op.put("name", nameField.getText());
+                op.put("pose", poseComboBox.getValue());
+                op.put("truncated", truncatedField.getText().isEmpty() ? 0 : Integer.parseInt(truncatedField.getText()));
+                op.put("difficult", difficultField.getText().isEmpty() ? 0 : Integer.parseInt(difficultField.getText()));
+
+                return op;
+            }
+
+            if (dialogButton == ButtonType.CANCEL) {
+                undo();
+
+            }
+            return null;
+        });
+
+        Optional<Map<String, Object>> result = dialog.showAndWait();
+        return result.get();
+    }
+
+    void undo() {
+
+        int size = centerPane.getChildren().size();
+        if (size > 1) {
+            centerPane.getChildren().remove(centerPane.getChildren().size() - 1);
+        }
+        int recSize = objAnnotator.getObjLabels().size();
+        if (recSize > 0) {
+            objAnnotator.removeObject(objAnnotator.getObjLabels().get(recSize - 1));
+        }
+
+        //try and write immediately
+        writeAnnotation();
     }
 
     /**
@@ -289,14 +420,64 @@ public class Main extends Application {
      * @param width
      * @param height
      */
-    void addRectangle(double x, double y, double width, double height) {
-        Rectangle rec = new Rectangle(x, y, width, height);
-        rec.setFill(new Color(Math.random(), Math.random(), Math.random(), 0.3));//randomness for some effects
-        rec.setStroke(Color.RED);
-        rec.setStrokeWidth(2d);
-        centerPane.getChildren().add(rec);
+    void addObjLabel(ObjLabel objLabel) {
+
+        //make sure the Object gets notified of mouse movements
+        iView.addEventHandler(MouseEvent.MOUSE_MOVED, objLabel);
+
+//        Rectangle objLabel = new Rectangle(x, y, width, height);
+//        rec.setOnMouseMoved(event -> {
+//            rec.setStroke(Color.HONEYDEW);
+//            rec.setStrokeWidth(3d);
+//
+//        });
+//
+//        rec.setOnMouseExited(event -> {
+//            rec.setStroke(Color.RED);
+//            rec.setStrokeWidth(2d);
+//
+//        });
+        objLabel.setFill(new Color(Math.random(), Math.random(), Math.random(), 0.3));//randomness for some effects
+        objLabel.setStroke(Color.RED);
+        objLabel.setStrokeWidth(2d);
+        centerPane.getChildren().add(objLabel);
     }
 
+//    ObjLabel getObjLabel(double x, double y) {
+//        ObjLabel _label = null;
+//        for (int i = 1; i < centerPane.getChildren().size(); i++) {
+//            ObjLabel label = (ObjLabel) centerPane.getChildren().get(i);
+//            double recX = label.getX();
+//            double recY = label.getY();
+//            double recW = label.getWidth();
+//            double recH = label.getHeight();
+//            boolean inX = false;
+//            boolean inY = false;
+//            if (x >= recX && recX + recW >= x) {
+//                status(label.getName() + " xMax:" + (recX + recW));
+//                inX = true;
+//                if (y >= recY && recY + recH >= y) {
+//                    status(label.getName() + " yMax:" + (recY + recH));
+//                    inY = true;
+//                    _label.setStroke(Color.KHAKI);
+//                }
+//            }
+//
+//            if (inX && inY) {
+//
+//                status(label.getName() + " xMax:" + (recX + recW) + " : " + label.getName() + " yMax:" + (recY + recH));
+//                _label = label;
+//                break;
+//            }
+//            if ((x >= rec.getX() && rec.getX() + rec.getWidth() >= x)
+//                    && (y >= rec.getY() && rec.getY() + rec.getHeight() >= y)) {
+//                status("rec width:" + rec.getWidth());
+//                _rec = rec;
+//                rec.setStroke(Color.KHAKI);
+//            }
+//        }
+//        return _label;
+//    }
     /**
      * Parse xml annotation
      *
@@ -324,11 +505,14 @@ public class Main extends Application {
 
             //redraw the boxes
             ArrayList<ObjLabel> objLabels = objAnnotator.getObjLabels();
+
+            status("Parsed: " + objLabels.size() + " objects for " + getFilename());
             objLabels.forEach((objLabel) -> {
-                addRectangle(objLabel.getXmin(),
-                        objLabel.getYmin(),
-                        objLabel.getXmax() - objLabel.getXmin(),
-                        objLabel.getYmax() - objLabel.getYmin());
+//                addRectangle(objLabel.getXmin(),
+//                        objLabel.getYmin(),
+//                        objLabel.getXmax() - objLabel.getXmin(),
+//                        objLabel.getYmax() - objLabel.getYmin());
+                addObjLabel(objLabel);
 
             });
 
@@ -349,7 +533,7 @@ public class Main extends Application {
     /**
      * Label object upon drawing the bounding box
      */
-    void labelObject() {
+    void labelObject(String name, String pose, int truncated, int difficult) {
         status("Prompting object details..");
         int xmin = (int) Math.round(xstart);
         int ymin = (int) Math.round(ystart);
@@ -357,8 +541,8 @@ public class Main extends Application {
         int ymax = (int) Math.round(ystart + yheight);
 
         //initiate a new object in the current image
-        ObjLabel objLabel = objAnnotator.newObjLabel();
-        objLabel.setObjectInfo("fingerprint", ObjLabel.POSE_NONE, 0, 0)
+//        ObjLabel objLabel = objAnnotator.newObjLabel();
+        curObjLabel.setObjectInfo(name, pose, truncated, difficult)
                 .setBoundingBox(xmin, ymin, xmax, ymax);
 
         //try and write immediately
@@ -390,6 +574,7 @@ public class Main extends Application {
      */
     void newAnnotation() {
 
+        //remove all rectangles
         for (int i = 1; i < centerPane.getChildren().size(); i++) {
             centerPane.getChildren().remove(i);
         }
@@ -411,15 +596,17 @@ public class Main extends Application {
 //                            primaryStage.setMinWidth(iView.getFitWidth());
 //                            primaryStage.setMinHeight(iView.getFitHeight());
 
-                String fileName = (photos != null && photos.length > 0) ? photos[fileIndex].getName() : "noimage";
+                String fileName = getFilename();
 
-                objAnnotator = new ObjAnnotator();
+                objAnnotator = new ObjAnnotator(Main.this);
                 objAnnotator.setSourceInfo("THE VOC2007 DB", "PASCAL VOC2007", "flickr", "12121212")
                         .setOwnerInfo("myflickerId", "Tony NGurU")
                         .setImageInfo("images", fileName, 0)
                         .setSizeInfo((int) Math.round(_img.getWidth()), (int) Math.round(_img.getWidth()), 3);
 
                 objAnnotator.init();
+
+                primaryStage.setTitle("LabelobJ - " + fileName);
 
                 //parse existing xml
                 parseXml();
@@ -430,6 +617,10 @@ public class Main extends Application {
             //TODO render the annotations if any
         }
 
+    }
+
+    public String getFilename() {
+        return (photos != null && photos.length > 0) ? photos[fileIndex].getName() : "noimage";
     }
 
     /**
@@ -453,5 +644,26 @@ public class Main extends Application {
         sLabel.setText(s);
 
         System.out.println(s);
+    }
+
+    @Override
+    public void addLabel() {
+    }
+
+    @Override
+    public void removeLabel() {
+    }
+
+    @Override
+    public void drawLabel() {
+    }
+
+    @Override
+    public void highlightLabel(ObjLabel objLabel, boolean select) {
+    }
+
+    @Override
+    public ObjLabel getSelectedLabel() {
+        return curObjLabel;
     }
 }

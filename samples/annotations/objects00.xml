@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><annotation>
+    <folder>images</folder>
+    <filename>objects00.png</filename>
+    <segmented>0</segmented>
+    <source>
+        <database>THE VOC2007 DB</database>
+        <annotation>PASCAL VOC2007</annotation>
+        <image>flickr</image>
+        <flickerid>flickr</flickerid>
+    </source>
+    <owner>
+        <flickerid>myflickerId</flickerid>
+        <name>Tony NGurU</name>
+    </owner>
+    <size>
+        <width>500</width>
+        <height>500</height>
+        <depth>3</depth>
+    </size>
+    <object>
+        <name>scissors</name>
+        <pose>none</pose>
+        <truncated>0</truncated>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>237</xmin>
+            <ymin>276</ymin>
+            <xmax>309</xmax>
+            <ymax>377</ymax>
+        </bndbox>
+    </object>
+    <object>
+        <name>pen</name>
+        <pose>none</pose>
+        <truncated>0</truncated>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>397</xmin>
+            <ymin>269</ymin>
+            <xmax>439</xmax>
+            <ymax>421</ymax>
+        </bndbox>
+    </object>
+    <object>
+        <name>igco drill</name>
+        <pose>none</pose>
+        <truncated>0</truncated>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>7</xmin>
+            <ymin>65</ymin>
+            <xmax>190</xmax>
+            <ymax>317</ymax>
+        </bndbox>
+    </object>
+    <object>
+        <name>cctv camera</name>
+        <pose>none</pose>
+        <truncated>0</truncated>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>194</xmin>
+            <ymin>97</ymin>
+            <xmax>396</xmax>
+            <ymax>214</ymax>
+        </bndbox>
+    </object>
+    <object>
+        <name>screw driver</name>
+        <pose>none</pose>
+        <truncated>0</truncated>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>390</xmin>
+            <ymin>82</ymin>
+            <xmax>451</xmax>
+            <ymax>284</ymax>
+        </bndbox>
+    </object>
+</annotation>

@@ -8,6 +8,8 @@ package com.urugn.labelobj;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
@@ -18,7 +20,7 @@ import org.w3c.dom.NodeList;
  *
  * @author UruGN
  */
-public class ObjAnnotator {
+public class ObjAnnotator extends Canvas {
 
     String namespaceURI = "", qualifiedName = "", doctype = "";
     private String folder;
@@ -38,8 +40,10 @@ public class ObjAnnotator {
 
     Document doc = null;
     private final ArrayList<ObjLabel> objLabels;
+    private LabelobScene scene;
 
-    public ObjAnnotator() {
+    public ObjAnnotator(LabelobScene scene) {
+        this.scene = scene;
         this.objLabels = new ArrayList();
         try {
             DocumentBuilderFactory docBF = DocumentBuilderFactory.newInstance();
@@ -140,8 +144,14 @@ public class ObjAnnotator {
     }
 
     public ObjLabel newObjLabel() {
-        ObjLabel objLabel = new ObjLabel(doc);
+        ObjLabel objLabel = new ObjLabel(scene, doc);
         objLabels.add(objLabel);
+        return objLabel;
+    }
+    
+     public ObjLabel newObjLabel(int x, int y, int height, int width) {
+        ObjLabel objLabel = newObjLabel();
+        objLabel.setBoundingBox(x, y, width, height);
         return objLabel;
     }
 
@@ -260,4 +270,7 @@ public class ObjAnnotator {
     public ArrayList<ObjLabel> getObjLabels() {
         return objLabels;
     }
+
+    
+    
 }
