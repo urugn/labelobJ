@@ -21,9 +21,9 @@ The jar directory includes a ready to run jar executable with dependencies under
 - If you are a developer in java, feel free to spare sometime and be part of the project.
 - You can also help support this project via 
   - [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=659VUBXNTUSEE) [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=659VUBXNTUSEE) 
-  - BTC: 
-  - XMR:
-  - ETH: 
+  - BTC: 3EeUnx2m6uj42gzvre1JsgE64zj99yiDiK
+  - ETH: 0x34BF4387eF9565E6585a834dE8D53567213847EB
+  - XMR: 49WVkvAAXUdYh1ZK2yujtKTFw6PgrRkuaKDbiYo2KFp1ZkxC2hmmBLqN2gJrTTvkJEaPJUGSJgpsias3VEvXCh173Hdmy5a
 
 ## License ##
 As of Oct 16 2019, Urugn Code Systems has released this repository and its contents to the public domain under UNLICENSE.
