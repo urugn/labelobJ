@@ -17,7 +17,7 @@ The jar directory includes a ready to run jar executable with dependencies under
 
 > java -jar urugn-lebalob-1.0.jar
 
-(http://urugn.com/wp-content/uploads/2019/10/labelobJ_screen.jpg)
+![LabelobJ](http://urugn.com/wp-content/uploads/2019/10/labelobJ_screen.jpg)
 
 ## Donating ##
 - If you are a developer in java, feel free to spare sometime and be part of the project.
