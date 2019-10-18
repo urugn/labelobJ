@@ -4,9 +4,9 @@ LabelobJ currently support creation of the *VOC 2007* dataset. The dataset can t
 neural network models for computer vision. Stay tune for a listing of trained models using labelobJ.
 
 ## Requirements ##
-- *** [Apache Netbeans 11.1](https://netbeans.apache.org/download/nb111/nb111.html) or higher from Apache
-- *** [Java 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher from Oracle.***
-- *** [Apache Ant 1.10.0](https://ant.apache.org/bindownload.cgi)or higher from Apache
+- ***[Apache Netbeans 11.1](https://netbeans.apache.org/download/nb111/nb111.html)*** or higher from Apache
+- ***[Java 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)*** or higher from Oracle.
+- ***[Apache Ant 1.10.0](https://ant.apache.org/bindownload.cgi)*** or higher from Apache
 
 ## Download ##
 
@@ -22,6 +22,8 @@ The jar directory includes a ready to run jar executable with dependencies under
 > java -jar urugn-lebalob-1.0.jar
 
 ![LabelobJ](http://urugn.com/wp-content/uploads/2019/10/labelobJ_screen.jpg)
+
+I also have a small clip on youtube. Click to play.
 
 [![LabelobJ](https://img.youtube.com/vi/eEZXBDydv_4/0.jpg)](https://www.youtube.com/watch?v=eEZXBDydv_4 "ViSLA LabelobJ")
 
